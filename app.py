@@ -1,133 +1,234 @@
-import streamlit as st
-import os
-import base64
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>羽翼之光 · Gallery of Wings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-# --- 1. 页面配置 ---
-st.set_page_config(page_title="Gallery of Wings", layout="wide")
+  <!-- 字体 -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
 
-# --- 2. 状态管理 ---
-if 'page' not in st.session_state:
-    st.session_state.page = 'cover'
+  <style>
+    :root {
+      --bg: #f8f6f2;
+      --ink: #1f2933;
+      --muted: #6b7280;
+      --accent: #8b5e3c;
+      --card: #ffffff;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-# --- 3. 辅助函数 ---
-def get_base64(path):
-    if os.path.exists(path):
-        with open(path, "rb") as f:
-            return base64.b64encode(f.read()).decode()
-    return ""
+    body {
+      font-family: "Noto Serif SC", serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.8;
+    }
 
+    img {
+      max-width: 100%;
+      display: block;
+    }
 
-cover_b64 = get_base64("cover.jpg")
+    /* ===== HERO 封面 ===== */
+    .hero {
+      position: relative;
+      height: 100vh;
+      background: url("hero.jpg") center/cover no-repeat;
+    }
 
-# --- 4. 暴力物理中心锚定 CSS ---
-st.markdown(f"""
-    <style>
-        /* 屏蔽原生组件 */
-        header, footer, [data-testid="stSidebar"], [data-testid="stSidebarNav"] {{ display: none !important; }}
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+    }
 
-        .block-container {{ 
-            max-width: 100vw !important; 
-            padding: 0 !important; 
-            margin: 0 !important; 
-        }}
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      text-align: center;
+      padding: 0 20px;
+    }
 
-        .stApp {{
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)), 
-                        url("data:image/jpg;base64,{cover_b64}");
-            background-size: cover; background-position: center; background-attachment: fixed;
-        }}
+    .hero h1 {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(3rem, 6vw, 4.5rem);
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+    }
 
-        /* 按钮暴力居中 */
-        div.stButton {{
-            display: flex !important;
-            justify-content: center !important;
-            width: 100vw !important; 
-            position: relative !important;
-            left: 50% !important;
-            transform: translateX(-50%) !important; 
-        }}
+    .hero p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
 
-        div.stButton > button {{
-            background-color: transparent !important;
-            color: #D4AF37 !important;
-            border: 2px solid #D4AF37 !important;
-            padding: 12px 60px !important;
-            letter-spacing: 10px !important;
-            font-size: 1.4rem !important;
-            border-radius: 0px !important;
-            margin: 20px auto !important;
-        }}
+    /* ===== 通用容器 ===== */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 120px 24px;
+    }
 
-        .full-center {{ width: 100vw; text-align: center; display: block; }}
+    /* ===== 艺术家介绍 ===== */
+    .artist {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 60px;
+      align-items: center;
+      background: var(--card);
+      padding: 80px;
+      border-radius: 4px;
+    }
 
-        /* 优化音乐播放器样式，让它稍微美观一点挂在顶部或底部 */
-        .stAudio {{
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            width: 300px !important;
-            opacity: 0.6;
-            transition: 0.3s;
-        }}
-        .stAudio:hover {{ opacity: 1; }}
-    </style>
-""", unsafe_allow_html=True)
+    .artist img {
+      border-radius: 50%;
+      border: 6px solid #fff;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
 
-# --- 5. 全局背景音乐 (放在这里确保每一页都有，且不会因切换页面而停止) ---
-if os.path.exists("music.mp3"):
-    st.audio("music.mp3", format="audio/mp3", autoplay=True)
+    .artist h2 {
+      font-family: "Playfair Display", serif;
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+    }
 
-# --- 6. 页面逻辑 ---
+    .artist p {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
 
-# 第一页：封面
-if st.session_state.page == 'cover':
-    st.markdown('<div style="height: 35vh;"></div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="full-center"><h1 style="font-size: 6rem; color: #D4AF37; letter-spacing: 20px; margin: 0;">羽翼之境</h1><p style="color: #888; letter-spacing: 10px; font-size: 1.5rem; margin-top: 20px;">ECHOES IN THE ETHER</p ></div>',
-        unsafe_allow_html=True)
-    st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
-    if st.button("ENTER GALLERY"):
-        st.session_state.page = 'artist'
-        st.rerun()
+    /* ===== 展览说明 ===== */
+    .section-title {
+      text-align: center;
+      margin-bottom: 80px;
+    }
 
-# 第二页：艺术家
-elif st.session_state.page == 'artist':
-    st.markdown('<div style="height: 10vh;"></div>', unsafe_allow_html=True)
-    _, col_mid, _ = st.columns([1, 0.8, 1])
-    with col_mid:
-        artist_b64 = get_base64("artist.jpg") or get_base64("atist.jpg")
-        if artist_b64:
-            st.image(f"data:image/jpg;base64,{artist_b64}", use_container_width=True)
+    .section-title h2 {
+      font-family: "Playfair Display", serif;
+      font-size: 2.8rem;
+      margin-bottom: 16px;
+    }
 
-    st.markdown(
-        '<div class="full-center"><h2 style="color: #D4AF37; font-size: 3rem; letter-spacing: 10px; margin-top: 20px;">艺术家 | 藤壶</h2><p style="color: #DDD; line-height: 2.2; font-size: 1.2rem; max-width: 800px; margin: 20px auto; padding: 0 40px;">藤壶笔下的羽翼，不只是飞翔的工具，更是灵魂的切片。</p ></div>',
-        unsafe_allow_html=True)
+    .section-title p {
+      color: var(--muted);
+    }
 
-    if st.button("VIEW THE WINGS"):
-        st.session_state.page = 'gallery'
-        st.rerun()
+    /* ===== 画廊 ===== */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 60px;
+    }
 
-# 第三页：画廊
-elif st.session_state.page == 'gallery':
-    st.markdown(
-        '<h1 style="text-align: center; color: #D4AF37; padding: 40px 0 20px 0; font-size: 3rem; letter-spacing: 15px;">羽翼馆藏</h1>',
-        unsafe_allow_html=True)
+    .artwork {
+      background: var(--card);
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease;
+    }
 
-    if st.button("← RETURN"):
-        st.session_state.page = 'cover'
-        st.rerun()
+    .artwork:hover {
+      transform: translateY(-6px);
+    }
 
-    img_dir = "images"
-    works = ["丽色军舰鸟", "苍鹭", "仓鸮"]
-    if os.path.exists(img_dir):
-        images = sorted([f for f in os.listdir(img_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg'))])
-        cols = st.columns(3)
-        for i, img_name in enumerate(images):
-            if i < 3:
-                with cols[i]:
-                    st.image(os.path.join(img_dir, img_name), use_container_width=True)
-                    st.markdown(
-                        f"<div style='text-align:center; color:#D4AF37; margin-top:15px;'><h3>《{works[i]}》</h3></div>",
-                        unsafe_allow_html=True)
+    .artwork h3 {
+      text-align: center;
+      font-size: 1rem;
+      margin-top: 16px;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    /* ===== 页脚 ===== */
+    footer {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 900px) {
+      .artist {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .artist img {
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 首页封面 -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>羽翼之光</h1>
+      <p>Gallery of Wings · 个人线上艺术展</p >
+    </div>
+  </section>
+
+  <!-- 艺术家介绍 -->
+  <section class="container">
+    <div class="artist">
+      < img src="avatar.jpg" alt="艺术家头像">
+      <div>
+        <h2>艺术家介绍</h2>
+        <p>
+          她以鸟为主题进行创作，关注羽翼、姿态与静默中的力量。
+          在画面中，飞翔并非逃离，而是一种内在秩序的展开。
+          <br><br>
+          本次展览《羽翼之光》，是对自然、自由与凝视的个人回应。
+        </p >
+      </div>
+    </div>
+  </section>
+
+  <!-- 展厅 -->
+  <section class="container">
+    <div class="section-title">
+      <h2>展厅漫步</h2>
+      <p>请放慢脚步，观看每一幅作品</p >
+    </div>
+
+    <div class="gallery">
+      <!-- 示例作品，按这个格式复制即可 -->
+      <div class="artwork">
+        < img src="images/bird_01.jpg" alt="作品 1">
+        <h3>《无题之一》</h3>
+      </div>
+
+      <div class="artwork">
+        < img src="images/bird_02.jpg" alt="作品 2">
+        <h3>《停栖》</h3>
+      </div>
+
+      <div class="artwork">
+        < img src="images/bird_03.jpg" alt="作品 3">
+        <h3>《风的方向》</h3>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer>
+    © 2026 Gallery of Wings · Designed as a gift
+  </footer>
+
+</body>
+</html>
